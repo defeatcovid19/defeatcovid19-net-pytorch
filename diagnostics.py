@@ -1,5 +1,4 @@
 import sys
-import scipy as sp
 import numpy as np
 import sklearn
 import pandas as pd
@@ -7,7 +6,6 @@ import cv2
 import torch
 
 print('Python version: {}'. format(sys.version))
-print('SciPy version: {}'. format(sp.__version__)) 
 print('NumPy version: {}'. format(np.__version__))
 print('scikit-learn version: {}'. format(sklearn.__version__))
 print('pandas version: {}'. format(pd.__version__))
