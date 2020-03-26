@@ -11,7 +11,7 @@ from dataloaders import SubsetRandomDataLoader
 from metrics import Accuracy
 
 class Trainer:
-    def __init__(self, classifier, dataset, batch_size):
+    def __init__(self, classifier, dataset, batch_size, train_idx, validation_idx):
         self.classifier = classifier
         self.batch_size = batch_size
         print('Trainer started with classifier: {} dataset: {} batch size: {}'.format(classifier.__class__.__name__, dataset, batch_size))
@@ -23,19 +23,19 @@ class Trainer:
         self.validation_dataset = dataset
         
        
-        self.train_idx, self.validation_idx = train_test_split(
-            list(range(len(self.train_dataset))),
-            test_size=0.2,
-            stratify=self.train_dataset.labels
-        )
+        # train_idx, validation_idx = train_test_split(
+        #     list(range(len(self.train_dataset))),
+        #     test_size=0.2,
+        #     stratify=self.train_dataset.labels
+        # )
 
-        self.train_loader = SubsetRandomDataLoader(dataset, self.train_idx, batch_size)
-        self.validation_loader = SubsetRandomDataLoader(dataset, self.validation_idx, batch_size)
+        self.train_loader = SubsetRandomDataLoader(dataset, train_idx, batch_size)
+        self.validation_loader = SubsetRandomDataLoader(dataset, validation_idx, batch_size)
         
-        print('Train set: {}'.format(len(self.train_idx)))
-        print('Validation set: {}'.format(len(self.validation_idx)))
+        print('Train set: {}'.format(len(train_idx)))
+        print('Validation set: {}'.format(len(validation_idx)))
 
-        self.it_per_epoch = math.ceil(len(self.train_idx) / self.batch_size)
+        self.it_per_epoch = math.ceil(len(train_idx) / self.batch_size)
         print('Training with {} mini-batches per epoch'.format(self.it_per_epoch))
 
         
