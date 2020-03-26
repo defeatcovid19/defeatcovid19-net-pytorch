@@ -163,9 +163,9 @@ class Trainer:
         return loss, m
     
     def save(self, model, optimizer, iter, epoch):
-        torch.save(model.state_dict(), "{}_model.pth".format(iter))
+        torch.save(model.state_dict(), "checkpoints/{}_model.pth".format(iter))
         torch.save({
             "optimizer": optimizer.state_dict(),
             "iter": iter,
             "epoch": epoch
-        }, "{}_optimizer.pth".format(iter))
+        }, "checkpoints/{}_optimizer.pth".format(iter))
