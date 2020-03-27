@@ -1,6 +1,6 @@
 # defeatcovid19-net-pytorch
 
-ofThis repo provides a Pytorch solution for predictions on X-ray images for COVID-19 patients. 
+This repo provides a Pytorch solution for predictions on X-ray images for COVID-19 patients. 
 
 ## Motivation
 It is intended to be used as a template for **defeatcovid19** group partecipants who like to contribute. You can find more info on our group's effort [here](https://github.com/defeatcovid19/defeatcovid19-project). At the moment we're actively trying to contact local hospitals to collect radiologic (mainly XRay and Eco) images to build a robust dataset for deep learning training.
@@ -23,8 +23,8 @@ python train.py
 ```
 
 ## Results (initial)
-
-A 5-fold cross validation applied to the last dataset results in a ~0.8 ROC AUC score.
+The first part of the training (on the "Pneumonia" dataset) uses a simple 80/20 train/valid split. It achieves a ROC AUC score close to 1 for the selected fold. 
+The second part of the training (on the "COVID" dataset) uses a more robust 5-fold cross validation and it results in a ~0.8 ROC AUC score.
 
 
 ## Citations
