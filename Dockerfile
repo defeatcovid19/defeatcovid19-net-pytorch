@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:latest
+FROM pytorch/pytorch:1.4-cuda10.1-cudnn7-devel
 
 ENV TZ=Europe/Rome
 ENV DEBIAN_FRONTEND=noninteractive
@@ -31,10 +31,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                                 cython \
                                 && rm -rf /var/lib/apt/lists/*
 
-RUN conda install Cython numpy scipy matplotlib scikit-learn
+RUN conda install Cython numpy=1.18.1 scipy=1.4.1 matplotlib scikit-learn=0.22.1 pandas=1.0.3
 
 WORKDIR /
-ENV OPENCV_VERSION="4.1.1"
+ENV OPENCV_VERSION="4.2.0"
 RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
     && unzip ${OPENCV_VERSION}.zip \
     && mkdir /opencv-${OPENCV_VERSION}/cmake_binary \
@@ -59,8 +59,6 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
     && make -j install \
     && rm /${OPENCV_VERSION}.zip \
     && rm -r /opencv-${OPENCV_VERSION}
-
-RUN conda install pandas
 
 RUN mkdir -p /root/.cache/torch/checkpoints/ && \
     wget https://download.pytorch.org/models/resnet34-333f7ec4.pth -P /root/.cache/torch/checkpoints/
