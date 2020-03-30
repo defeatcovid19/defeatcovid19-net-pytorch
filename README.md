@@ -22,6 +22,26 @@ You can train the network and see the results of the cross validation with
 python train.py
 ```
 
+## Running with Docker
+
+### Requirements
+NVIDIA Driver Installation
+[Docker installation](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+[NVIDIA Docker installation](https://github.com/NVIDIA/nvidia-docker)
+
+### Build docker image
+From the root of the repository (the image takes several minutes to build, due to download and compilation):
+```
+source tools/docker/setup.sh
+```
+Or if you are using shell fish:
+```
+source tools/docker/setup.fish
+```
+For running the training process:
+```
+dkrun train.py
+```
 ## Results (initial)
 The first part of the training (on the "Pneumonia" dataset) uses a simple 80/20 train/valid split. It achieves a ROC AUC score close to 1 for the selected fold. 
 The second part of the training (on the "COVID" dataset) uses a more robust 5-fold cross validation and it results in a ~0.77 ROC AUC score.
