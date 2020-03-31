@@ -24,7 +24,7 @@ python train.py
 
 ## Results (initial)
 The first part of the training (on the "Pneumonia" dataset) uses a simple 80/20 train/valid split. It achieves a ROC AUC score close to 1 for the selected fold. 
-The second part of the training (on the "COVID" dataset) uses a more robust 5-fold cross validation and it results in a ~0.8 ROC AUC score.
+The second part of the training (on the "COVID" dataset) uses a more robust 5-fold cross validation and it results in a ~0.77 ROC AUC score.
 
 
 ## Citations
