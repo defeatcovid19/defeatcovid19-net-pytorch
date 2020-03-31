@@ -6,9 +6,15 @@ import torch.nn as nn
 from timeit import default_timer as timer
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 from dataloaders import SubsetRandomDataLoader
 from metrics import Accuracy
+
+def roc_auc_score_robust(y_true, y_pred):
+    if len(np.unique(y_true)) == 1:
+        return accuracy_score(y_true, np.rint(y_pred))
+    else:
+        return roc_auc_score(y_true, y_pred)
 
 class Trainer:
     def __init__(self, classifier, dataset, batch_size, train_idx, validation_idx):
@@ -55,7 +61,7 @@ class Trainer:
 
         criterion = nn.BCELoss()
         criterion = criterion.cuda()
-        metrics = [Accuracy(), roc_auc_score]
+        metrics = [Accuracy(), roc_auc_score_robust]
 
         print("{}'".format(self.optimizer))
         print("{}'".format(self.scheduler))
