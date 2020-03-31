@@ -14,6 +14,7 @@ print('Torch version: {}'. format(torch.__version__))
 print('Available GPUs: {}'.format(torch.cuda.device_count()))
 if torch.cuda.is_available:
     device = torch.device('cuda')
+    print('Cuda version: {}'.format(torch.version.cuda))
 else:
     device = torch.device('cpu')
 print("Torch device: {}".format(device))
