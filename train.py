@@ -12,7 +12,7 @@ import numpy as np
 import torch
 
 # Fix seed to improve reproducibility
-SEED = 1234
+SEED = 6666
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
