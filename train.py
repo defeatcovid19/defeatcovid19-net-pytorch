@@ -1,7 +1,7 @@
 import copy
 import diagnostics
 from pathlib import Path
-from datasets import ChestXRayPneumoniaDataset, COVIDChestXRayDataset
+from datasets import ChestXRayPneumoniaDataset, COVIDChestXRayDataset, NIHCX38Dataset
 from models import Resnet34
 from trainer import Trainer
 from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -26,6 +26,7 @@ n_splits = 5
 # Pretrain with Chest XRay Pneumonia dataset (>5k images)
 pneumonia_classifier = Resnet34()
 dataset = ChestXRayPneumoniaDataset(Path('input/chest-xray-pneumonia'), size)
+# dataset = NIHCX38Dataset(Path('input/nih-cx38'), size, balance=True)
 train_idx, validation_idx = train_test_split(
     list(range(len(dataset))),
     test_size=0.2,
