@@ -10,12 +10,6 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 from dataloaders import SubsetRandomDataLoader
 from metrics import Accuracy
 
-def roc_auc_score_robust(y_true, y_pred):
-    if len(np.unique(y_true)) == 1:
-        return accuracy_score(y_true, np.rint(y_pred))
-    else:
-        return roc_auc_score(y_true, y_pred)
-
 class Trainer:
     def __init__(self, classifier, dataset, batch_size, train_idx, validation_idx):
         self.classifier = classifier
@@ -61,7 +55,7 @@ class Trainer:
 
         criterion = nn.BCELoss()
         criterion = criterion.cuda()
-        metrics = [Accuracy(), roc_auc_score_robust]
+        metrics = [Accuracy(), roc_auc_score]
 
         print("{}'".format(self.optimizer))
         print("{}'".format(self.scheduler))
@@ -78,10 +72,10 @@ class Trainer:
 
         start = timer()
         while epoch < max_epochs:
-            smoothed_train_loss = 0
-            smoothed_train_roc = 0
-            smoothed_train_acc = 0
-            smoothed_sum = 0
+            epoch_labels = []
+            epoch_preds = []
+            epoch_losses = []
+            epoch_loss_weights = []
 
             for inputs, labels in self.train_loader:
                 epoch = (it + 1) / self.it_per_epoch
@@ -100,6 +94,11 @@ class Trainer:
 
                 preds = model(inputs)
                 loss = criterion(preds, labels)
+                
+                epoch_labels.append(labels.cpu())
+                epoch_preds.append(preds.cpu())
+                epoch_losses.append(loss.data.cpu().numpy())
+                epoch_loss_weights.append(len(preds))
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -107,31 +106,22 @@ class Trainer:
                 nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 self.optimizer.step()
                 self.scheduler.step()
-                
-                with torch.no_grad():
-                    batch_acc, batch_roc = [i(labels.cpu(), preds.cpu()).item() for i in metrics]
-
-                batch_loss = loss.item()
-                smoothed_train_loss += batch_loss
-                smoothed_train_roc += batch_roc
-                smoothed_train_acc += batch_acc
-                smoothed_sum += 1
-                if (it + 1) % it_smooth == 0 and it > 0:
-                    train_loss = smoothed_train_loss / smoothed_sum
-                    train_roc = smoothed_train_roc / smoothed_sum
-                    train_acc = smoothed_train_acc / smoothed_sum
-                    smoothed_train_loss = 0
-                    smoothed_train_roc = 0
-                    smoothed_train_acc = 0
-                    smoothed_sum = 0
 
                 if it % it_log == 0:
                     print(
-                        "{:5f} {:4d} {:5.1f} |                      | {:0.3f}  {:0.3f}  {:0.3f}  | {:6.2f}".format(
-                            lr, it, epoch, batch_loss, batch_roc, batch_acc, timer() - start
+                        "{:5f} {:4d} {:5.1f} |                      |                      | {:6.2f}".format(
+                            lr, it, epoch, timer() - start
                         ))
 
                 it += 1
+
+            # loss and metrics
+            with torch.no_grad():
+                epoch_labels = torch.cat(epoch_labels)
+                epoch_preds = torch.cat(epoch_preds)
+                train_acc, train_roc = [i(epoch_labels.cpu(), epoch_preds.cpu()).item() for i in metrics]
+
+            train_loss = np.average(epoch_losses, weights=epoch_loss_weights)
 
             # validation
             valid_loss, valid_m = self.do_valid(model, criterion, metrics)
@@ -150,7 +140,10 @@ class Trainer:
     def do_valid(self, model, criterion, metrics):
         model.eval()
         valid_num = 0
+        valid_labels = []
+        valid_preds = []
         losses = []
+        loss_weights = []
 
         for inputs, labels in self.validation_loader:
             inputs = inputs.cuda().float()
@@ -159,13 +152,21 @@ class Trainer:
             with torch.no_grad():
                 preds = model(inputs)
                 loss = criterion(preds, labels)
-                m = [i(labels.cpu(), preds.cpu()).item() for i in metrics]
 
             valid_num += len(inputs)
+            valid_labels.append(labels.cpu())
+            valid_preds.append(preds.cpu())
             losses.append(loss.data.cpu().numpy())
+            loss_weights.append(len(inputs))
 
         assert (valid_num == len(self.validation_loader.sampler))
-        loss = np.array(losses).mean()
+        
+        with torch.no_grad():
+            valid_labels = torch.cat(valid_labels)
+            valid_preds = torch.cat(valid_preds)
+            m = [i(valid_labels.cpu(), valid_preds.cpu()).item() for i in metrics]
+        
+        loss = np.average(losses, weights=loss_weights)
         return loss, m
     
     def save(self, model, optimizer, iter, epoch):
