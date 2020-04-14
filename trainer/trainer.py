@@ -6,7 +6,7 @@ import torch.nn as nn
 from timeit import default_timer as timer
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import roc_auc_score
 from dataloaders import SubsetRandomDataLoader
 from metrics import Accuracy
 
